@@ -297,14 +297,17 @@ footer{border-top:1px solid var(--line); padding:34px 0; font-size:13px; color:v
 
   <section>
     <div class="wrap contact-grid">
-      <form onsubmit="event.preventDefault(); document.getElementById('form-success').style.display='block'; this.style.display='none';">
+      <form id="contact-form">
+        <input type="hidden" name="access_key" value="c0866364-b1d8-4702-bc2a-2a1b3b9390a8">
+        <input type="hidden" name="subject" value="X Koçluk — Yeni Ön Görüşme Talebi">
+        <input type="hidden" name="from_name" value="X Koçluk Web Sitesi">
         <div class="field">
           <label for="name">Ad Soyad</label>
-          <input id="name" type="text" placeholder="Adın soyadın" required>
+          <input id="name" name="Ad Soyad" type="text" placeholder="Adın soyadın" required>
         </div>
         <div class="field">
           <label for="grade">Sınıf</label>
-          <select id="grade">
+          <select id="grade" name="Sınıf">
             <option>9. Sınıf</option>
             <option>10. Sınıf</option>
             <option>11. Sınıf</option>
@@ -314,11 +317,11 @@ footer{border-top:1px solid var(--line); padding:34px 0; font-size:13px; color:v
         </div>
         <div class="field">
           <label for="phone">Telefon</label>
-          <input id="phone" type="tel" placeholder="05xx xxx xx xx" required>
+          <input id="phone" name="Telefon" type="tel" placeholder="05xx xxx xx xx" required>
         </div>
         <div class="field">
           <label for="service">İlgilendiğin hizmet</label>
-          <select id="service">
+          <select id="service" name="İlgilendiği Hizmet">
             <option>Akademik Koçluk</option>
             <option>Psikolojik Destek</option>
             <option>Deneme Takip Sistemi</option>
@@ -328,10 +331,11 @@ footer{border-top:1px solid var(--line); padding:34px 0; font-size:13px; color:v
         </div>
         <div class="field">
           <label for="msg">Eklemek istediğin bir şey var mı?</label>
-          <textarea id="msg" placeholder="Kısaca ihtiyacından bahsedebilirsin"></textarea>
+          <textarea id="msg" name="Mesaj" placeholder="Kısaca ihtiyacından bahsedebilirsin"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;">Ücretsiz görüşme talep et</button>
+        <button type="submit" id="submit-btn" class="btn btn-primary" style="width:100%;">Ücretsiz görüşme talep et</button>
         <div id="form-success" style="display:none; margin-top:16px; font-size:14px; color:var(--sage-deep);">Teşekkürler! 24 saat içinde seninle iletişime geçeceğiz.</div>
+        <div id="form-error" style="display:none; margin-top:16px; font-size:14px; color:#B3453B;">Bir sorun oluştu, lütfen WhatsApp veya telefon üzerinden ulaşın.</div>
       </form>
 
       <div class="contact-side">
@@ -353,6 +357,39 @@ footer{border-top:1px solid var(--line); padding:34px 0; font-size:13px; color:v
     <div>© 2026 X Koçluk. Tüm hakları saklıdır.</div>
   </div>
 </footer>
+
+<script>
+  const form = document.getElementById('contact-form');
+  const btn = document.getElementById('submit-btn');
+  const successBox = document.getElementById('form-success');
+  const errorBox = document.getElementById('form-error');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Gönderiliyor...';
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      const data = await res.json();
+      if (data.success) {
+        form.style.display = 'none';
+        successBox.style.display = 'block';
+      } else {
+        throw new Error(data.message || 'Gönderim başarısız');
+      }
+    } catch (err) {
+      errorBox.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Ücretsiz görüşme talep et';
+    }
+  });
+</script>
 
 </body>
 </html>
